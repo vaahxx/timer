@@ -27,6 +27,7 @@ interface Cycle {
   task: string;
   minutesAmount: number;
   startDate: Date;
+  stopDate?: Date;
 }
 
 export function Home() {
@@ -57,6 +58,20 @@ export function Home() {
     setSecondsPassed(0);
 
     reset();
+  }
+
+  function handleStopCycle() {
+    setCycles(
+      cycles.map((cycle) => {
+        if (cycle.id === activeCycleId) {
+          return { ...cycle, stopDate: new Date() };
+        } else {
+          return cycle;
+        }
+      })
+    );
+
+    setActiveCycleId(null);
   }
 
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId);
@@ -140,7 +155,7 @@ export function Home() {
         </CountdownContainer>
 
         {activeCycle ? (
-          <StopCountdownButton type='button'>
+          <StopCountdownButton onClick={handleStopCycle} type='button'>
             <HandPalm size={24} />
             Stop
           </StopCountdownButton>
