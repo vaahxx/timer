@@ -1,4 +1,3 @@
-import { differenceInSeconds } from "date-fns";
 import {
   createContext,
   ReactNode,
@@ -6,8 +5,8 @@ import {
   useReducer,
   useState,
 } from "react";
+import { differenceInSeconds } from "date-fns";
 import {
-  ActionTypes,
   addNewCycleAction,
   markCurrentCycleAsFinishedAction,
   stopCurrentCycleAction,
@@ -53,6 +52,11 @@ export function CyclesContextProvider({
       if (storedStateAsJSON) {
         return JSON.parse(storedStateAsJSON);
       }
+
+      return {
+        cycles: [],
+        activeCycleId: null,
+      };
     }
   );
 
