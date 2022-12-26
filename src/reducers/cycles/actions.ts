@@ -13,7 +13,7 @@ export function addNewCycleAction(newCycle: Cycle) {
   };
 }
 
-export function stopCurrentCycleAction(activeCycleId: string) {
+export function stopCurrentCycleAction() {
   return {
     type: ActionTypes.STOP_CURRENT_CYCLE,
   };

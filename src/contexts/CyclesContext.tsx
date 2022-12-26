@@ -1,7 +1,15 @@
-import { createContext, ReactNode, useReducer, useState } from "react";
+import { differenceInSeconds } from "date-fns";
+import {
+  createContext,
+  ReactNode,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import {
   ActionTypes,
   addNewCycleAction,
+  markCurrentCycleAsFinishedAction,
   stopCurrentCycleAction,
 } from "../reducers/cycles/actions";
 import { Cycle, cyclesReducer } from "../reducers/cycles/reducer";
@@ -31,16 +39,38 @@ interface CyclesContextProviderProps {
 export function CyclesContextProvider({
   children,
 }: CyclesContextProviderProps) {
-  const [cyclesState, dispatch] = useReducer(cyclesReducer, {
-    cycles: [],
-    activeCycleId: null,
-  });
+  const [cyclesState, dispatch] = useReducer(
+    cyclesReducer,
+    {
+      cycles: [],
+      activeCycleId: null,
+    },
+    () => {
+      const storedStateAsJSON = localStorage.getItem(
+        "@timer:cycles-state-1.0.0"
+      );
 
-  const [secondsPassed, setSecondsPassed] = useState(0);
+      if (storedStateAsJSON) {
+        return JSON.parse(storedStateAsJSON);
+      }
+    }
+  );
 
   const { cycles, activeCycleId } = cyclesState;
-
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId);
+
+  const [secondsPassed, setSecondsPassed] = useState(() => {
+    if (activeCycle) {
+      return differenceInSeconds(new Date(), new Date(activeCycle.startDate));
+    }
+
+    return 0;
+  });
+
+  useEffect(() => {
+    const stateJSON = JSON.stringify(cyclesState);
+    localStorage.setItem("@timer:cycles-state-1.0.0", stateJSON);
+  }, [cyclesState]);
 
   function createNewCycle(data: CreateCycleData) {
     const id = String(new Date().getTime());
@@ -58,14 +88,11 @@ export function CyclesContextProvider({
   }
 
   function stopCurrentCycle() {
-    dispatch(stopCurrentCycleAction(activeCycleId));
+    dispatch(stopCurrentCycleAction());
   }
 
   function markCurrentCycleAsFinished() {
-    // dispatch({
-    //   type: ActionTypes.MARK_CURRENT_CYCLE_AS_FINISHED,
-    //   payload: { activeCycleId },
-    // });
+    dispatch(markCurrentCycleAsFinishedAction());
   }
 
   return (
